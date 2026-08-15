@@ -18,6 +18,8 @@ using namespace facebook::react;
   NSString *_aspectMode;
   BOOL _mirror;
   BOOL _registered;
+  IVSStageStream *_attachedVideoStream;
+  NSString *_attachedAspectMode;
 }
 
 + (ComponentDescriptorProvider)componentDescriptorProvider
@@ -76,6 +78,15 @@ using namespace facebook::react;
 
 - (void)attachVideoStream:(nullable IVSStageStream *)stream
 {
+  BOOL alreadyAttached =
+      stream != nil && stream == _attachedVideoStream &&
+      [_attachedAspectMode isEqualToString:_aspectMode] && _hostView.previewView != nil;
+  if (alreadyAttached) {
+    return;
+  }
+
+  _attachedVideoStream = nil;
+  _attachedAspectMode = nil;
   [_hostView clearPreview];
 
   if (stream == nil) {
@@ -96,6 +107,8 @@ using namespace facebook::react;
   }
 
   [_hostView attachPreview:preview];
+  _attachedVideoStream = stream;
+  _attachedAspectMode = [_aspectMode copy];
 }
 
 - (void)updateProps:(Props::Shared const &)props oldProps:(Props::Shared const &)oldProps
@@ -112,6 +125,8 @@ using namespace facebook::react;
 
   if (participantChanged && _registered) {
     [self deregisterIfNeeded];
+    _attachedVideoStream = nil;
+    _attachedAspectMode = nil;
   }
 
   _participantId = participantId;
@@ -140,6 +155,8 @@ using namespace facebook::react;
   [super prepareForRecycle];
   [self deregisterIfNeeded];
   [_hostView clearPreview];
+  _attachedVideoStream = nil;
+  _attachedAspectMode = nil;
   _participantId = @"";
 }
 

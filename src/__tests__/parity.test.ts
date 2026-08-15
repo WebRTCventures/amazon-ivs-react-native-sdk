@@ -157,4 +157,21 @@ describe('parity', () => {
     expect(fileContainsAll(iosMap, expected)).toEqual([]);
     expect(fileContainsAll(androidMap, expected)).toEqual([]);
   });
+
+  it('iOS participant video view skips same-stream preview rebinds', () => {
+    const videoView = path.join(ROOT, 'ios/IvsParticipantVideoView.mm');
+    const src = fs.readFileSync(videoView, 'utf8');
+
+    expect(src).toContain('stream == _attachedVideoStream');
+    expect(src).toContain('[_attachedAspectMode isEqualToString:_aspectMode]');
+    expect(src).toContain('_hostView.previewView != nil');
+
+    const guardIndex = src.indexOf('if (alreadyAttached)');
+    const clearIndex = src.indexOf('[_hostView clearPreview];');
+    expect(guardIndex).toBeGreaterThanOrEqual(0);
+    expect(clearIndex).toBeGreaterThan(guardIndex);
+
+    expect(src).toContain('_attachedVideoStream = stream;');
+    expect(src).toContain('_attachedVideoStream = nil;');
+  });
 });
