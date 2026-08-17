@@ -399,7 +399,7 @@
     self.pendingLeaveResolve = [resolve copy];
 
     __weak __typeof(self) weakSelf = self;
-    dispatch_block_t timeoutWork = dispatch_block_create(0, ^{
+    dispatch_block_t timeoutWork = dispatch_block_create((dispatch_block_flags_t)0, ^{
       [weakSelf finishPendingLeaveDueToTimeout];
     });
     self.pendingLeaveTimeoutWork = timeoutWork;
