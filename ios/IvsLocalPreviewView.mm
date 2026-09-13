@@ -12,6 +12,16 @@
 
 using namespace facebook::react;
 
+static NSHashTable<IvsLocalPreviewView *> *IvsMountedLocalPreviews(void)
+{
+  static NSHashTable<IvsLocalPreviewView *> *mounted;
+  static dispatch_once_t once;
+  dispatch_once(&once, ^{
+    mounted = [NSHashTable weakObjectsHashTable];
+  });
+  return mounted;
+}
+
 @implementation IvsLocalPreviewView {
   IvsPreviewHostView *_hostView;
   NSString *_source;
@@ -34,7 +44,7 @@ using namespace facebook::react;
     [self addSubview:_hostView];
     _source = @"camera";
     _aspectMode = @"fill";
-    _mirror = YES;
+    _mirror = NO;
     _hostView.aspectMode = _aspectMode;
     _hostView.mirror = _mirror;
   }
@@ -100,11 +110,33 @@ using namespace facebook::react;
   [_hostView attachPreview:preview];
 }
 
+- (void)layoutSubviews
+{
+  [super layoutSubviews];
+  _hostView.frame = self.bounds;
+  if (self.window != nil && !CGRectIsEmpty(self.bounds) && _hostView.previewView == nil) {
+    [self rebuildPreview];
+  }
+}
+
 - (void)didMoveToWindow
 {
   [super didMoveToWindow];
   if (self.window != nil) {
-    [self rebuildPreview];
+    [IvsMountedLocalPreviews() addObject:self];
+    if (!CGRectIsEmpty(self.bounds)) {
+      [self rebuildPreview];
+    }
+  } else {
+    [IvsMountedLocalPreviews() removeObject:self];
+  }
+}
+
++ (void)notifyMountedViews
+{
+  for (IvsLocalPreviewView *view in IvsMountedLocalPreviews()) {
+    [view->_hostView clearPreview];
+    [view rebuildPreview];
   }
 }
 
@@ -114,11 +146,11 @@ using namespace facebook::react;
 
   NSString *source = [NSString stringWithUTF8String:newViewProps.source.c_str()];
   NSString *aspectMode = [NSString stringWithUTF8String:toString(newViewProps.aspectMode).c_str()];
-  BOOL mirror = newViewProps.mirror;
+  NSString *mirrorMode = [NSString stringWithUTF8String:toString(newViewProps.mirror).c_str()];
+  BOOL mirror = [mirrorMode isEqualToString:@"on"];
 
   BOOL sourceChanged = ![source isEqualToString:_source];
   BOOL aspectModeChanged = ![aspectMode isEqualToString:_aspectMode];
-  BOOL mirrorChanged = mirror != _mirror;
 
   _source = source;
   _aspectMode = aspectMode;
@@ -127,15 +159,11 @@ using namespace facebook::react;
   _hostView.mirror = mirror;
 
   if (self.window != nil) {
-    if (sourceChanged || (_hostView.previewView == nil)) {
+    if (sourceChanged || aspectModeChanged || (_hostView.previewView == nil)) {
       [_hostView clearPreview];
       [self rebuildPreview];
-    } else if (aspectModeChanged) {
-      [_hostView clearPreview];
-      [self rebuildPreview];
-    } else if (mirrorChanged) {
-      [_hostView applyMirror];
     }
+    [_hostView applyMirror];
   }
 
   [super updateProps:props oldProps:oldProps];
@@ -146,6 +174,10 @@ using namespace facebook::react;
   [super prepareForRecycle];
   [_hostView clearPreview];
   _source = @"camera";
+  _aspectMode = @"fill";
+  _mirror = NO;
+  _hostView.aspectMode = _aspectMode;
+  _hostView.mirror = _mirror;
 }
 
 @end

@@ -1,4 +1,4 @@
-/** Copy to stage.config.ts (gitignored) and paste a participant token. */
 export const STAGE_PARTICIPANT_TOKEN = '';
-
-export const AUTO_JOIN_ON_LAUNCH = false;
+export const MEETING_CODE = '482916';
+export const MEETING_TITLE = 'Demo room';
+export const DEFAULT_DISPLAY_NAME = 'You';

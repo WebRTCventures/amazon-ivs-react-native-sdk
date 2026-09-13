@@ -81,4 +81,4 @@ Autolinking handles the native module. After install:
 
 - [Tokens](tokens.md) — create a stage and mint participant tokens
 - [Architecture](architecture.md) — how the SDK is layered
-- Run the [example app](../example/README.md) for a full lobby → room flow
+- Run the [example app](../example/README.md) for home → pre-join → call

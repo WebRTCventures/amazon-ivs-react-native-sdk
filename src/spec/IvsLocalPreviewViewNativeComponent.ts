@@ -7,7 +7,7 @@ import {
 interface NativeProps extends ViewProps {
   /** Local device source: 'camera' | 'screen' | device urn. */
   source?: CodegenTypes.WithDefault<string, 'camera'>;
-  mirror?: CodegenTypes.WithDefault<boolean, true>;
+  mirror?: CodegenTypes.WithDefault<'on' | 'off', 'off'>;
   aspectMode?: CodegenTypes.WithDefault<'fill' | 'fit', 'fill'>;
 }
 

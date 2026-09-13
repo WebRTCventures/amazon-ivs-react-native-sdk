@@ -2,6 +2,7 @@
 #import "IvsAppLifecycle.h"
 #import "IvsAudioSession.h"
 #import "IvsDevices.h"
+#import "IvsLocalPreviewView.h"
 #import "IvsMapping.h"
 #import "IvsParticipantStreams.h"
 
@@ -218,7 +219,13 @@
   IVSDevicePosition wanted = self.cameraPositionValue;
   for (IVSDeviceDescriptor *source in [camera listAvailableInputSources]) {
     if (source.position == wanted) {
-      [camera setPreferredInputSource:source onComplete:nil];
+      [camera setPreferredInputSource:source
+                           onComplete:^(NSError *_Nullable error) {
+                             (void)error;
+                             dispatch_async(dispatch_get_main_queue(), ^{
+                               [IvsLocalPreviewView notifyMountedViews];
+                             });
+                           }];
       break;
     }
   }
@@ -532,6 +539,9 @@
     if (local != nil) {
       [self emitParticipantUpdated:local];
     }
+    if (enabled) {
+      [IvsLocalPreviewView notifyMountedViews];
+    }
     resolve();
   });
 }
@@ -619,6 +629,11 @@
                                    reject(@"device-unavailable", error.localizedDescription,
                                           [IvsMapping nativeErrorDictionary:error]);
                                    return;
+                                 }
+                                 [IvsLocalPreviewView notifyMountedViews];
+                                 IvsParticipantRecord *local = [self localParticipantRecord];
+                                 if (local != nil) {
+                                   [self emitParticipantUpdated:local];
                                  }
                                  resolve();
                                });

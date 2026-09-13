@@ -90,6 +90,8 @@ Mint a participant token with the included CLI — see [docs/tokens.md](docs/tok
 
 ## Example app
 
+Meet-style Demo: home → pre-join preview → call. See [example/README.md](example/README.md).
+
 ```bash
 yarn install
 cp example/src/stage.config.example.ts example/src/stage.config.ts

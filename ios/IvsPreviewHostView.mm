@@ -6,7 +6,7 @@
 {
   if (self = [super initWithFrame:frame]) {
     _aspectMode = @"fill";
-    _mirror = YES;
+    _mirror = NO;
   }
   return self;
 }
@@ -28,8 +28,8 @@
   _previewView = preview;
   preview.frame = self.bounds;
   preview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-  [self applyMirror];
   [self addSubview:preview];
+  [self applyMirror];
 }
 
 - (void)applyMirror
@@ -46,6 +46,7 @@
 {
   [super layoutSubviews];
   [self layoutPreview];
+  [self applyMirror];
 }
 
 @end

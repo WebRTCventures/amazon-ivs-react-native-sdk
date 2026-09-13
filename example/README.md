@@ -1,97 +1,97 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Demo
 
-# Getting Started
+Meet-style sample for [`amazon-ivs-react-native-sdk`](../README.md). The app is the walkthrough: three screens, one join path, tokens stay out of the UI.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+A product app would mint tokens on your server when someone creates or joins a room. This demo reads a token from gitignored `stage.config.ts` so reviewers can run it locally.
 
-## Step 1: Start Metro
+## How it was built
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+The old example was a single lobby with a JWT field, publish jargon, and a Lab screen. It was rewritten as a small meeting flow:
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+1. **Home** — New meeting, or join with a short code (not a token).
+2. **Pre-join** — Camera preview, name, mic / camera / flip, then **Join now**.
+3. **Call** — Local tile + remotes, same controls, leave.
 
-```sh
-# Using npm
-npm start
+Settings (resolution, mirror, fill/fit) live in `App.tsx` so they survive preview → call. Debug is a sheet on top of those screens, not its own destination.
 
-# OR using Yarn
-yarn start
+```
+example/src/
+  App.tsx                 IVSStageProvider, screen state, join / leave
+  stage.config.ts         gitignored token + meeting code
+  stage.config.example.ts checked-in template
+  media.ts                720p / 540p / 360p publish presets
+  theme.ts                light UI tokens
+  screens/
+    HomeScreen.tsx
+    PreJoinScreen.tsx
+    StageScreen.tsx
+  components/             buttons, tiles, settings, debug
+  hooks/useEventLog.ts    stage events → Debug → Logs
 ```
 
-## Step 2: Build and run your app
+### SDK surface the demo uses
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+| Need | API |
+| --- | --- |
+| Stage + events | `IVSStageProvider`, `useStage`, `useStageEvent` |
+| Join / leave / publish | `join(token, { publish: true })`, `setPublishEnabled`, `leave` |
+| Camera / mic | `useLocalMedia` — `prepareDevices`, `setCameraEnabled`, `setMicrophoneEnabled`, `flipCamera` |
+| Local preview | `IVSLocalPreviewView` (`mirror`, `aspectMode`) |
+| Remote video | `useParticipants` + `IVSParticipantVideoView` |
+| Encode size | `stage.setVideoConfig` (what remotes receive, not the preview texture) |
+| Permissions | `requestCameraPermission`, `requestMicrophonePermission` |
 
-### Android
+`App.tsx` is the map. Join applies cam/mic/position/`setVideoConfig`, then `join` + `setPublishEnabled(true)`, then applies those settings again so the call does not flash SDK defaults.
 
-```sh
-# Using npm
-npm run android
+### Why mirror is `'on' | 'off'`
 
-# OR using Yarn
-yarn android
-```
+Fabric omits a boolean `false` on remount. Join creates a new `IVSLocalPreviewView`, so `mirror={false}` used to snap back to the native default (`true`). The JS prop is still `mirror: boolean`; the native spec uses `'on' | 'off'`.
 
-### iOS
+Mute, camera, and flip emit `participantUpdated` (and sometimes `streamsChanged`). Debug → Logs listens for those. Pre-join only talks to the local camera, so those rows appear after you are in the call.
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+## Device
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+**Use a physical iPhone.** The Simulator has no camera — preview stays black.
 
-```sh
-bundle install
-```
+Phone and Mac must share Wi‑Fi. Metro defaults to port 8081.
 
-Then, and every time you update your native dependencies, run:
+## Setup
 
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+From the repo root:
 
 ```sh
-# Using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
+yarn install
+cp example/src/stage.config.example.ts example/src/stage.config.ts
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+Mint a participant token (never commit it):
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+```sh
+cp scripts/ivs.env.example scripts/ivs.env   # fill IVS_STAGE_ARN
+./scripts/ivs token --copy
+```
 
-## Step 3: Modify your app
+Paste into `STAGE_PARTICIPANT_TOKEN` in `example/src/stage.config.ts`. Set `MEETING_CODE` to whatever guests type (for example `482916`).
 
-Now that you have successfully run the app, let's make changes!
+## Run
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+```sh
+yarn example start
+yarn example ios --device
+```
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+If pods are stale:
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+```sh
+cd example/ios
+RCT_NEW_ARCH_ENABLED=1 bundle exec pod install
+cd ../..
+yarn example ios --device
+```
 
-## Congratulations! :tada:
+1. **New meeting** → allow camera/mic → check preview → **Join now**
+2. On a second phone, mint another token (`./scripts/ivs token --user-id guest --copy`), put it in that phone’s `stage.config.ts`, then **Join with a code** using the same `MEETING_CODE`
 
-You've successfully run and modified your React Native App. :partying_face:
+Or join from the [IVS real-time web demo](https://aws.github.io/amazon-ivs-real-time-web-demo/) with a separate token.
 
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+See [docs/release-checklist.md](../docs/release-checklist.md) before a release.

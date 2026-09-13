@@ -28,7 +28,7 @@ export function IVSLocalPreviewView({
   return (
     <IvsLocalPreviewViewNativeComponent
       source={source}
-      mirror={mirror}
+      mirror={mirror ? 'on' : 'off'}
       aspectMode={aspectMode}
       {...viewProps}
     />

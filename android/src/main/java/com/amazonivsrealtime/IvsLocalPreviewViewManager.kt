@@ -34,8 +34,8 @@ class IvsLocalPreviewViewManager :
   }
 
   @ReactProp(name = "mirror")
-  override fun setMirror(view: IvsLocalPreviewView?, value: Boolean) {
-    view?.setMirrorProp(value)
+  override fun setMirror(view: IvsLocalPreviewView?, value: String?) {
+    view?.setMirrorProp(value == "on")
   }
 
   @ReactProp(name = "aspectMode")

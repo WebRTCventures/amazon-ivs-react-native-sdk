@@ -50,6 +50,12 @@ using namespace facebook::react;
   return _participantId;
 }
 
+- (void)layoutSubviews
+{
+  [super layoutSubviews];
+  _hostView.frame = self.bounds;
+}
+
 - (void)didMoveToWindow
 {
   [super didMoveToWindow];
