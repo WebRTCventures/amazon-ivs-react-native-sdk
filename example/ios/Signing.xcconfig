@@ -1,0 +1,20 @@
+// Signing configuration for the example app.
+//
+// This file is committed and must stay repository-neutral: no personal Apple
+// Developer team, no personal bundle identifier. Contributors are not members
+// of each other's teams, so hardcoding either here breaks device builds and
+// archives for everyone else.
+//
+// To build on a physical device or archive for TestFlight, create
+// Signing.local.xcconfig next to this file and set your own values there:
+//
+//     DEVELOPMENT_TEAM = ABCDE12345
+//     PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.ivsexample
+//
+// Signing.local.xcconfig is gitignored. See example/README.md.
+
+PRODUCT_BUNDLE_IDENTIFIER = com.amazonivsrealtime.example
+DEVELOPMENT_TEAM =
+
+// Optional; no error when the file is absent.
+#include? "Signing.local.xcconfig"
