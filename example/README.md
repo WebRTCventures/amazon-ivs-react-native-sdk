@@ -73,6 +73,25 @@ cp scripts/ivs.env.example scripts/ivs.env   # fill IVS_STAGE_ARN
 
 Paste into `STAGE_PARTICIPANT_TOKEN` in `example/src/stage.config.ts`. Set `MEETING_CODE` to whatever guests type (for example `482916`).
 
+### Signing (device builds and archives)
+
+The checked-in `example/ios/Signing.xcconfig` is deliberately repository-neutral:
+a project-owned bundle identifier and an empty `DEVELOPMENT_TEAM`. Contributors
+are not members of each other's Apple teams, so a hardcoded team here would
+break device builds and archives for everyone else.
+
+To run on a physical device or archive for TestFlight, create your own override:
+
+```sh
+cat > example/ios/Signing.local.xcconfig <<'EOF'
+DEVELOPMENT_TEAM = ABCDE12345
+PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.ivsexample
+EOF
+```
+
+`Signing.local.xcconfig` is gitignored and wins over the committed defaults.
+Simulator builds need neither file.
+
 ## Run
 
 ```sh

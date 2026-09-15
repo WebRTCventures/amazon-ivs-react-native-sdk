@@ -90,4 +90,5 @@ nitrogen/
 .env.*
 !.env.example
 example/src/stage.config.ts
+example/ios/Signing.local.xcconfig
 scripts/ivs.env
