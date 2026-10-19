@@ -8,6 +8,8 @@ import android.widget.FrameLayout
 import com.amazonaws.ivs.broadcast.BroadcastConfiguration
 import com.amazonaws.ivs.broadcast.ImageDevice
 import com.amazonaws.ivs.broadcast.ImagePreviewView
+import java.util.Collections
+import java.util.WeakHashMap
 
 /**
  * Shared preview host with mirror/aspectMode props and the RN layout workaround.
@@ -52,7 +54,13 @@ abstract class IvsPreviewHostView @JvmOverloads constructor(
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
+    attached.add(this)
     scheduleApply()
+  }
+
+  override fun onDetachedFromWindow() {
+    attached.remove(this)
+    super.onDetachedFromWindow()
   }
 
   fun clearPreview() {
@@ -100,4 +108,16 @@ abstract class IvsPreviewHostView @JvmOverloads constructor(
   }
 
   protected abstract fun applyConfiguration()
+
+  companion object {
+    private val attached: MutableSet<IvsPreviewHostView> =
+      Collections.newSetFromMap(WeakHashMap())
+
+    /** Call on main before `Stage.release()`; overlapping them deadlocks the SDK. */
+    fun detachAllPreviews() {
+      for (view in attached.toList()) {
+        view.clearPreview()
+      }
+    }
+  }
 }

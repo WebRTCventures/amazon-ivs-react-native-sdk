@@ -732,6 +732,7 @@ object IvsStageManager : IvsAppLifecycleDelegate {
   private fun finishLeaveTeardown() {
     stage?.let {
       it.removeRenderer(renderer)
+      IvsPreviewHostView.detachAllPreviews()
       it.release()
     }
     stage = null
@@ -747,6 +748,7 @@ object IvsStageManager : IvsAppLifecycleDelegate {
     stage?.let {
       it.removeRenderer(renderer)
       it.leave()
+      IvsPreviewHostView.detachAllPreviews()
       it.release()
     }
     stage = null
@@ -772,6 +774,7 @@ object IvsStageManager : IvsAppLifecycleDelegate {
     stage?.let {
       it.removeRenderer(renderer)
       it.leave()
+      IvsPreviewHostView.detachAllPreviews()
       it.release()
     }
     stage = null
