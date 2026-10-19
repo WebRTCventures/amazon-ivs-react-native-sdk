@@ -12,11 +12,17 @@ class IvsParticipantVideoView(context: Context) : IvsPreviewHostView(context) {
   private var participantId: String? = null
   private var pendingDevice: ImageDevice? = null
   private var registered = false
+  private val binder = PreviewBinder<ImageDevice>(
+    attach = { attachPreview(it) },
+    hasPreview = { previewView != null },
+    applyMirror = { previewView?.scaleX = if (it) -1f else 1f },
+  )
 
   fun setParticipantIdProp(value: String?) {
     val next = value?.takeIf { it.isNotEmpty() }
     if (next != participantId) {
       deregisterIfNeeded()
+      binder.reset()
       participantId = next
       scheduleApply()
     }
@@ -40,12 +46,14 @@ class IvsParticipantVideoView(context: Context) : IvsPreviewHostView(context) {
   override fun applyConfiguration() {
     if (!isAttachedToWindow) return
     registerIfNeeded()
-    attachPreview(pendingDevice ?: participantId?.let { IvsParticipantStreams.videoDevice(it) })
+    val device = pendingDevice ?: participantId?.let { IvsParticipantStreams.videoDevice(it) }
+    binder.apply(device, aspectMode, mirror)
   }
 
   override fun onRelease() {
     deregisterIfNeeded()
     pendingDevice = null
+    binder.reset()
     participantId = null
   }
 

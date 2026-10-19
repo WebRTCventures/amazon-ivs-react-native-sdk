@@ -72,6 +72,20 @@ def enableProguardInReleaseBuilds = false
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
+// Release signing from Gradle properties; falls back to the debug keystore when none is set.
+def releaseStoreFile = findProperty('ivsExampleReleaseStoreFile')
+def hasReleaseKey = releaseStoreFile as boolean
+if (hasReleaseKey) {
+    if (!file(releaseStoreFile).exists()) {
+        throw new GradleException("ivsExampleReleaseStoreFile not found: ${releaseStoreFile}")
+    }
+    def missing = ['ivsExampleReleaseStorePassword', 'ivsExampleReleaseKeyAlias', 'ivsExampleReleaseKeyPassword']
+        .findAll { !findProperty(it) }
+    if (missing) {
+        throw new GradleException("Release signing is missing: ${missing.join(', ')}")
+    }
+}
+
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -82,8 +96,8 @@ android {
         applicationId "com.amazonivsrealtime.example"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode((findProperty('ivsExampleVersionCode') ?: '1') as Integer)
+        versionName(findProperty('ivsExampleVersionName') ?: '1.0')
     }
     signingConfigs {
         debug {
@@ -92,15 +106,21 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        if (hasReleaseKey) {
+            release {
+                storeFile file(releaseStoreFile)
+                storePassword findProperty('ivsExampleReleaseStorePassword')
+                keyAlias findProperty('ivsExampleReleaseKeyAlias')
+                keyPassword findProperty('ivsExampleReleaseKeyPassword')
+            }
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig hasReleaseKey ? signingConfigs.release : signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }

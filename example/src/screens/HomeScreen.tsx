@@ -2,15 +2,14 @@ import { useState } from 'react';
 import {
   KeyboardAvoidingView,
   Modal,
-  Platform,
   Pressable,
-  SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
 import { DebugLink } from '../components/DebugSheet';
 import { ErrorBanner } from '../components/ErrorBanner';
@@ -49,7 +48,7 @@ export function HomeScreen({
 
   return (
     <SafeAreaView style={styles.screen}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.canvas} />
+      <StatusBar barStyle="dark-content" />
       <View style={styles.body}>
         <View style={styles.hero}>
           <View style={styles.logoMark}>
@@ -59,7 +58,7 @@ export function HomeScreen({
         </View>
 
         {!hasToken ? (
-          <ErrorBanner message="Add a token in stage.config.ts to join." />
+          <ErrorBanner message="No participant token. Paste one under Debug → Token." />
         ) : null}
 
         <View style={styles.actions}>
@@ -81,11 +80,13 @@ export function HomeScreen({
         </View>
       </View>
 
-      <Modal visible={joinOpen} animationType="slide" transparent>
-        <KeyboardAvoidingView
-          style={styles.modalAvoid}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        >
+      <Modal
+        visible={joinOpen}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setJoinOpen(false)}
+      >
+        <KeyboardAvoidingView style={styles.modalAvoid} behavior="padding">
           <Pressable style={styles.modalBackdrop} onPress={closeJoin}>
             <Pressable
               style={styles.modalSheet}

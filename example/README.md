@@ -2,7 +2,7 @@
 
 Meet-style sample for [`amazon-ivs-react-native-sdk`](../README.md). The app is the walkthrough: three screens, one join path, tokens stay out of the UI.
 
-A product app would mint tokens on your server when someone creates or joins a room. This demo reads a token from gitignored `stage.config.ts` so reviewers can run it locally.
+A product app would mint tokens on your server when someone creates or joins a room. This demo reads a token from gitignored `stage.config.ts` so reviewers can run it locally. A build handed to testers has no token at all; they paste one under **Debug → Token** (see [Tester builds](#tester-builds-android)).
 
 ## How it was built
 
@@ -51,9 +51,9 @@ Mute, camera, and flip emit `participantUpdated` (and sometimes `streamsChanged`
 
 ## Device
 
-**Use a physical iPhone.** The Simulator has no camera — preview stays black.
+**Use a physical phone.** The iOS Simulator has no camera, so the preview stays black. Android emulators have a virtual camera, but the camera and audio paths that matter only behave for real on a device.
 
-Phone and Mac must share Wi‑Fi. Metro defaults to port 8081.
+iOS: the phone and the Mac must share Wi‑Fi. Metro defaults to port 8081. Android: connect over USB and run `adb reverse tcp:8081 tcp:8081`.
 
 ## Setup
 
@@ -99,6 +99,26 @@ yarn example start
 yarn example ios --device
 ```
 
+### Android
+
+Needs JDK 17 (React Native 0.85 pins `jvmToolchain(17)`; newer JDKs fail) and an Android SDK with platform 36. Point Gradle at the SDK with `ANDROID_HOME`, or with `sdk.dir` in a gitignored `example/android/local.properties`.
+
+```sh
+yarn example start
+adb reverse tcp:8081 tcp:8081
+yarn example android
+```
+
+A release build embeds the JS bundle, so it runs without Metro:
+
+```sh
+cd example/android
+./gradlew :app:assembleRelease -PreactNativeArchitectures=arm64-v8a
+# app/build/outputs/apk/release/app-release.apk
+```
+
+Release builds are signed with the debug keystore unless these Gradle properties are set, for example in `~/.gradle/gradle.properties`: `ivsExampleReleaseStoreFile`, `ivsExampleReleaseStorePassword`, `ivsExampleReleaseKeyAlias`, `ivsExampleReleaseKeyPassword`.
+
 If pods are stale:
 
 ```sh
@@ -112,5 +132,26 @@ yarn example ios --device
 2. On a second phone, mint another token (`./scripts/ivs token --user-id guest --copy`), put it in that phone’s `stage.config.ts`, then **Join with a code** using the same `MEETING_CODE`
 
 Or join from the [IVS real-time web demo](https://aws.github.io/amazon-ivs-real-time-web-demo/) with a separate token.
+
+## Tester builds (Android)
+
+The **Android example** workflow (`.github/workflows/android-example.yml`) builds a release APK only when asked, so it doesn't spend Actions minutes on every pull request. There are two ways to run it:
+
+- **Push a tag** named `example-android-<version>`, for example `git tag example-android-0.2.0 && git push origin example-android-0.2.0`. The workflow builds that commit and publishes the APK as a GitHub prerelease on the tag, with `versionName` set to the part after `example-android-`.
+- **Run it manually** from the Actions tab. The APK is attached to the run as an artifact. Tick **release** to also publish it as a prerelease tagged `example-android-0.1.<run>`.
+
+Never use a `v*` tag for this: those publish the library to npm.
+
+Each build's `versionCode` is its run number, so a newer APK installs over an older one.
+
+**The APK carries no token.** For each tester, mint a token with their own user id and send it to them:
+
+```sh
+./scripts/ivs token --user-id alice --username Alice
+```
+
+The tester installs the APK (allowing installs from their browser or files app), opens **Debug → Token**, pastes the token and taps **Use token**. The tab shows when the token expires. A pasted token lasts until the app restarts.
+
+**Signing.** Without secrets, CI signs with the debug keystore that is committed to the repo. That is fine for testing, but anyone can produce an update signed with the same key, and it can never go to Play. To sign with a real key, add these repository secrets: `ANDROID_EXAMPLE_KEYSTORE_BASE64` (`base64 -w0 release.jks`), `ANDROID_EXAMPLE_KEYSTORE_PASSWORD`, `ANDROID_EXAMPLE_KEY_ALIAS` and `ANDROID_EXAMPLE_KEY_PASSWORD`. Testers have to uninstall once when the key changes.
 
 See [docs/release-checklist.md](../docs/release-checklist.md) before a release.

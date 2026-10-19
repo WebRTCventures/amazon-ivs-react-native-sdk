@@ -174,4 +174,25 @@ describe('parity', () => {
     expect(src).toContain('_attachedVideoStream = stream;');
     expect(src).toContain('_attachedVideoStream = nil;');
   });
+
+  it('Android participant video view skips same-stream preview rebinds', () => {
+    // Behaviour is covered by PreviewBinderTest.kt; this checks the wiring.
+    const dir = path.join(ROOT, 'android/src/main/java/com/amazonivsrealtime');
+    const view = fs.readFileSync(
+      path.join(dir, 'IvsParticipantVideoView.kt'),
+      'utf8'
+    );
+    const binder = fs.readFileSync(path.join(dir, 'PreviewBinder.kt'), 'utf8');
+
+    expect(view).toContain('binder.apply(device, aspectMode, mirror)');
+    expect(view).toContain('hasPreview = { previewView != null }');
+    expect(view).toContain('binder.reset()');
+
+    expect(binder).toContain('device === boundDevice');
+    expect(binder).toContain('aspectMode == boundAspectMode');
+    const guardIndex = binder.indexOf('device === boundDevice');
+    const attachIndex = binder.indexOf('attach(device)');
+    expect(guardIndex).toBeGreaterThanOrEqual(0);
+    expect(attachIndex).toBeGreaterThan(guardIndex);
+  });
 });

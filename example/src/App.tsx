@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { Alert } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Alert, BackHandler } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import {
   IVSStageProvider,
   useLocalMedia,
@@ -21,7 +22,8 @@ import {
 } from './stage.config';
 
 function AppContent() {
-  const token = STAGE_PARTICIPANT_TOKEN.trim();
+  const [pastedToken, setPastedToken] = useState('');
+  const token = (pastedToken || STAGE_PARTICIPANT_TOKEN).trim();
   const [screen, setScreen] = useState<'home' | 'prejoin' | 'call'>('home');
   const [displayName, setDisplayName] = useState(DEFAULT_DISPLAY_NAME);
   const [joining, setJoining] = useState(false);
@@ -73,6 +75,27 @@ function AppContent() {
     await leave();
     setScreen('home');
   }
+
+  useEffect(() => {
+    const subscription = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        if (screen === 'call') {
+          handleLeave();
+          return true;
+        }
+        if (screen === 'prejoin') {
+          // Don't leave mid-join.
+          if (!joining) {
+            setScreen('home');
+          }
+          return true;
+        }
+        return false;
+      }
+    );
+    return () => subscription.remove();
+  });
 
   function handleJoinWithCode(code: string) {
     if (code.replace(/\s/g, '').toUpperCase() !== MEETING_CODE.toUpperCase()) {
@@ -139,6 +162,9 @@ function AppContent() {
         onClose={() => setDebugOpen(false)}
         entries={entries}
         onClearLog={clear}
+        pastedToken={pastedToken}
+        onPasteToken={setPastedToken}
+        hasBuiltInToken={STAGE_PARTICIPANT_TOKEN.trim().length > 0}
       />
     </>
   );
@@ -146,8 +172,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <IVSStageProvider subscribe="audio-video">
-      <AppContent />
-    </IVSStageProvider>
+    <SafeAreaProvider>
+      <IVSStageProvider subscribe="audio-video">
+        <AppContent />
+      </IVSStageProvider>
+    </SafeAreaProvider>
   );
 }

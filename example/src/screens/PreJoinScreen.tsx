@@ -5,13 +5,13 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   IVSLocalPreviewView,
   requestCameraPermission,
@@ -127,8 +127,8 @@ export function PreJoinScreen({
       style={styles.screen}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <StatusBar barStyle="light-content" backgroundColor={colors.video} />
-      <SafeAreaView>
+      <StatusBar barStyle="light-content" />
+      <SafeAreaView edges={['top', 'left', 'right']}>
         <View style={styles.topBar}>
           <Pressable onPress={onBack} hitSlop={12} accessibilityRole="button">
             <Text style={styles.back}>Back</Text>
@@ -163,7 +163,7 @@ export function PreJoinScreen({
         </View>
       </Pressable>
 
-      <SafeAreaView>
+      <SafeAreaView edges={['bottom', 'left', 'right']}>
         <View style={styles.sheet}>
           <Text style={styles.sheetLabel}>Your name</Text>
           <TextInput
