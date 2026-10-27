@@ -23,8 +23,8 @@ import {
 } from './stage.config';
 
 function AppContent() {
-  const [pastedToken, setPastedToken] = useState('');
-  const token = (pastedToken || STAGE_PARTICIPANT_TOKEN).trim();
+  const [pastedToken, setPastedToken] = useState(STAGE_PARTICIPANT_TOKEN);
+  const token = pastedToken.trim();
   const [screen, setScreen] = useState<
     'home' | 'token' | 'prejoin' | 'call'
   >('home');
@@ -121,7 +121,7 @@ function AppContent() {
       {screen === 'token' ? (
         <TokenScreen
           meetingTitle={MEETING_TITLE}
-          token={pastedToken || STAGE_PARTICIPANT_TOKEN}
+          token={pastedToken}
           onChangeToken={setPastedToken}
           onBack={() => setScreen('home')}
           onContinue={() => setScreen('prejoin')}

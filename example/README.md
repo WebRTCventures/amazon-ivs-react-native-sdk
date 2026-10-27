@@ -2,7 +2,7 @@
 
 Meet-style sample for [`amazon-ivs-react-native-sdk`](../README.md). The app is the walkthrough: home → token → pre-join → call.
 
-A product app would mint tokens on your server. This demo asks for a participant token after New meeting / Join with a code, and pre-fills it from gitignored `stage.config.ts` for local testing. A build handed to testers has no token at all; they paste one under **Debug → Token** (see [Tester builds](#tester-builds-android)).
+A product app would mint tokens on your server. This demo asks for a participant token after New meeting / Join with a code, and pre-fills it from gitignored `stage.config.ts` for local testing. A build handed to testers has no token at all; they paste one on the token screen after New meeting / Join with a code, or under **Debug → Token** (see [Tester builds](#tester-builds-android)).
 
 ## How it was built
 
