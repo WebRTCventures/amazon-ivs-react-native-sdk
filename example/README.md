@@ -1,16 +1,17 @@
 # Demo
 
-Meet-style sample for [`amazon-ivs-react-native-sdk`](../README.md). The app is the walkthrough: three screens, one join path, tokens stay out of the UI.
+Meet-style sample for [`amazon-ivs-react-native-sdk`](../README.md). The app is the walkthrough: home → token → pre-join → call.
 
-A product app would mint tokens on your server when someone creates or joins a room. This demo reads a token from gitignored `stage.config.ts` so reviewers can run it locally. A build handed to testers has no token at all; they paste one under **Debug → Token** (see [Tester builds](#tester-builds-android)).
+A product app would mint tokens on your server. This demo asks for a participant token after New meeting / Join with a code, and pre-fills it from gitignored `stage.config.ts` for local testing. A build handed to testers has no token at all; they paste one on the token screen after New meeting / Join with a code (see [Tester builds](#tester-builds-android)).
 
 ## How it was built
 
 The old example was a single lobby with a JWT field, publish jargon, and a Lab screen. It was rewritten as a small meeting flow:
 
-1. **Home** — New meeting, or join with a short code (not a token).
-2. **Pre-join** — Camera preview, name, mic / camera / flip, then **Join now**.
-3. **Call** — Local tile + remotes, same controls, leave.
+1. **Home** — New meeting, or join with a short code.
+2. **Token** — Paste a participant token (pre-filled from `stage.config.ts`).
+3. **Pre-join** — Camera preview, name, mic / camera / flip, then **Join now**.
+4. **Call** — Local tile + remotes, same controls, leave.
 
 Settings (resolution, mirror, fill/fit) live in `App.tsx` so they survive preview → call. Debug is a sheet on top of those screens, not its own destination.
 
@@ -23,6 +24,7 @@ example/src/
   theme.ts                light UI tokens
   screens/
     HomeScreen.tsx
+    TokenScreen.tsx
     PreJoinScreen.tsx
     StageScreen.tsx
   components/             buttons, tiles, settings, debug
@@ -150,7 +152,7 @@ Each build's `versionCode` is its run number, so a newer APK installs over an ol
 ./scripts/ivs token --user-id alice --username Alice
 ```
 
-The tester installs the APK (allowing installs from their browser or files app), opens **Debug → Token**, pastes the token and taps **Use token**. The tab shows when the token expires. A pasted token lasts until the app restarts.
+The tester installs the APK (allowing installs from their browser or files app), taps **New meeting** or **Join with a code**, and pastes the token on the token screen. A pasted token lasts until the app restarts.
 
 **Signing.** Without secrets, CI signs with the debug keystore that is committed to the repo. That is fine for testing, but anyone can produce an update signed with the same key, and it can never go to Play. To sign with a real key, add these repository secrets: `ANDROID_EXAMPLE_KEYSTORE_BASE64` (`base64 -w0 release.jks`), `ANDROID_EXAMPLE_KEYSTORE_PASSWORD`, `ANDROID_EXAMPLE_KEY_ALIAS` and `ANDROID_EXAMPLE_KEY_PASSWORD`. Testers have to uninstall once when the key changes.
 

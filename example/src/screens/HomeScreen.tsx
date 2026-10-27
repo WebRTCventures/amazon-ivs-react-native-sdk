@@ -12,16 +12,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
 import { DebugLink } from '../components/DebugSheet';
-import { ErrorBanner } from '../components/ErrorBanner';
 import { colors, radius, space, type } from '../theme';
 
 export function HomeScreen({
-  hasToken,
   onNewMeeting,
   onJoinMeeting,
   onOpenDebug,
 }: {
-  hasToken: boolean;
   onNewMeeting: () => void;
   onJoinMeeting: (code: string) => void;
   onOpenDebug: () => void;
@@ -57,22 +54,13 @@ export function HomeScreen({
           <Text style={styles.title}>Demo</Text>
         </View>
 
-        {!hasToken ? (
-          <ErrorBanner message="No participant token. Paste one under Debug → Token." />
-        ) : null}
-
         <View style={styles.actions}>
           <Button
             variant="primary"
             label="New meeting"
             onPress={onNewMeeting}
-            disabled={!hasToken}
           />
-          <Button
-            label="Join with a code"
-            onPress={() => setJoinOpen(true)}
-            disabled={!hasToken}
-          />
+          <Button label="Join with a code" onPress={() => setJoinOpen(true)} />
         </View>
 
         <View style={styles.footer}>

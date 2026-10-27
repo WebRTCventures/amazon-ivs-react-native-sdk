@@ -14,6 +14,7 @@ import { VIDEO_PRESETS } from './media';
 import { HomeScreen } from './screens/HomeScreen';
 import { PreJoinScreen } from './screens/PreJoinScreen';
 import { StageScreen } from './screens/StageScreen';
+import { TokenScreen } from './screens/TokenScreen';
 import {
   DEFAULT_DISPLAY_NAME,
   MEETING_CODE,
@@ -22,9 +23,11 @@ import {
 } from './stage.config';
 
 function AppContent() {
-  const [pastedToken, setPastedToken] = useState('');
-  const token = (pastedToken || STAGE_PARTICIPANT_TOKEN).trim();
-  const [screen, setScreen] = useState<'home' | 'prejoin' | 'call'>('home');
+  const [pastedToken, setPastedToken] = useState(STAGE_PARTICIPANT_TOKEN);
+  const token = pastedToken.replace(/\s/g, '');
+  const [screen, setScreen] = useState<'home' | 'token' | 'prejoin' | 'call'>(
+    'home'
+  );
   const [displayName, setDisplayName] = useState(DEFAULT_DISPLAY_NAME);
   const [joining, setJoining] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -87,8 +90,12 @@ function AppContent() {
         if (screen === 'prejoin') {
           // Don't leave mid-join.
           if (!joining) {
-            setScreen('home');
+            setScreen('token');
           }
+          return true;
+        }
+        if (screen === 'token') {
+          setScreen('home');
           return true;
         }
         return false;
@@ -102,16 +109,26 @@ function AppContent() {
       Alert.alert('Code not found', 'Check the code and try again.');
       return;
     }
-    setScreen('prejoin');
+    setScreen('token');
   }
 
   return (
     <>
       {screen === 'home' ? (
         <HomeScreen
-          hasToken={token.length > 0}
-          onNewMeeting={() => setScreen('prejoin')}
+          onNewMeeting={() => setScreen('token')}
           onJoinMeeting={handleJoinWithCode}
+          onOpenDebug={() => setDebugOpen(true)}
+        />
+      ) : null}
+
+      {screen === 'token' ? (
+        <TokenScreen
+          meetingTitle={MEETING_TITLE}
+          token={pastedToken}
+          onChangeToken={setPastedToken}
+          onBack={() => setScreen('home')}
+          onContinue={() => setScreen('prejoin')}
           onOpenDebug={() => setDebugOpen(true)}
         />
       ) : null}
@@ -122,7 +139,7 @@ function AppContent() {
           meetingCode={MEETING_CODE}
           displayName={displayName}
           onChangeDisplayName={setDisplayName}
-          onBack={() => setScreen('home')}
+          onBack={() => setScreen('token')}
           onJoin={handleJoin}
           joining={joining}
           aspectMode={aspectMode}
@@ -162,9 +179,6 @@ function AppContent() {
         onClose={() => setDebugOpen(false)}
         entries={entries}
         onClearLog={clear}
-        pastedToken={pastedToken}
-        onPasteToken={setPastedToken}
-        hasBuiltInToken={STAGE_PARTICIPANT_TOKEN.trim().length > 0}
       />
     </>
   );
