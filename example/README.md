@@ -1,16 +1,17 @@
 # Demo
 
-Meet-style sample for [`amazon-ivs-react-native-sdk`](../README.md). The app is the walkthrough: three screens, one join path, tokens stay out of the UI.
+Meet-style sample for [`amazon-ivs-react-native-sdk`](../README.md). The app is the walkthrough: home → token → pre-join → call.
 
-A product app would mint tokens on your server when someone creates or joins a room. This demo reads a token from gitignored `stage.config.ts` so reviewers can run it locally. A build handed to testers has no token at all; they paste one under **Debug → Token** (see [Tester builds](#tester-builds-android)).
+A product app would mint tokens on your server. This demo asks for a participant token after New meeting / Join with a code, and pre-fills it from gitignored `stage.config.ts` for local testing. A build handed to testers has no token at all; they paste one under **Debug → Token** (see [Tester builds](#tester-builds-android)).
 
 ## How it was built
 
 The old example was a single lobby with a JWT field, publish jargon, and a Lab screen. It was rewritten as a small meeting flow:
 
-1. **Home** — New meeting, or join with a short code (not a token).
-2. **Pre-join** — Camera preview, name, mic / camera / flip, then **Join now**.
-3. **Call** — Local tile + remotes, same controls, leave.
+1. **Home** — New meeting, or join with a short code.
+2. **Token** — Paste a participant token (pre-filled from `stage.config.ts`).
+3. **Pre-join** — Camera preview, name, mic / camera / flip, then **Join now**.
+4. **Call** — Local tile + remotes, same controls, leave.
 
 Settings (resolution, mirror, fill/fit) live in `App.tsx` so they survive preview → call. Debug is a sheet on top of those screens, not its own destination.
 
@@ -23,6 +24,7 @@ example/src/
   theme.ts                light UI tokens
   screens/
     HomeScreen.tsx
+    TokenScreen.tsx
     PreJoinScreen.tsx
     StageScreen.tsx
   components/             buttons, tiles, settings, debug
