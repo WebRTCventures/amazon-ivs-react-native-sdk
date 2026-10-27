@@ -39,7 +39,7 @@ export function DebugSheet({
   onClearLog,
   pastedToken,
   onPasteToken,
-  hasBuiltInToken,
+  usingBuiltInToken,
 }: {
   visible: boolean;
   onClose: () => void;
@@ -47,7 +47,7 @@ export function DebugSheet({
   onClearLog: () => void;
   pastedToken: string;
   onPasteToken: (token: string) => void;
-  hasBuiltInToken: boolean;
+  usingBuiltInToken: boolean;
 }) {
   const [tab, setTab] = useState<Tab>('state');
   const [draft, setDraft] = useState('');
@@ -89,14 +89,15 @@ export function DebugSheet({
 
   const cleanDraft = draft.replace(/\s/g, '');
   const draftLooksValid = cleanDraft.split('.').length === 3;
-  const pastedExpiry = pastedToken ? tokenExpiry(pastedToken) : null;
+  const hasToken = pastedToken.replace(/\s/g, '').length > 0;
+  const pastedExpiry = hasToken ? tokenExpiry(pastedToken) : null;
   let tokenSource = 'No token. Paste one to join.';
-  if (pastedToken) {
+  if (hasToken && usingBuiltInToken) {
+    tokenSource = 'Using the token from stage.config.ts.';
+  } else if (hasToken) {
     tokenSource = pastedExpiry
       ? `Using the pasted token, expires ${pastedExpiry.toLocaleString()}.`
       : 'Using the pasted token.';
-  } else if (hasBuiltInToken) {
-    tokenSource = 'Using the token from stage.config.ts.';
   }
 
   return (
@@ -186,7 +187,7 @@ export function DebugSheet({
                   </Text>
                 ) : null}
                 <View style={styles.tokenActions}>
-                  {pastedToken ? (
+                  {hasToken ? (
                     <Pressable onPress={() => onPasteToken('')} hitSlop={8}>
                       <Text style={styles.link}>Clear pasted token</Text>
                     </Pressable>

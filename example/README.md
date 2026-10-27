@@ -152,7 +152,7 @@ Each build's `versionCode` is its run number, so a newer APK installs over an ol
 ./scripts/ivs token --user-id alice --username Alice
 ```
 
-The tester installs the APK (allowing installs from their browser or files app), opens **Debug → Token**, pastes the token and taps **Use token**. The tab shows when the token expires. A pasted token lasts until the app restarts.
+The tester installs the APK (allowing installs from their browser or files app), taps **New meeting** or **Join with a code**, and pastes the token on the token screen. Or they open **Debug → Token**, paste it and tap **Use token**. The Debug tab shows when the token expires. A pasted token lasts until the app restarts.
 
 **Signing.** Without secrets, CI signs with the debug keystore that is committed to the repo. That is fine for testing, but anyone can produce an update signed with the same key, and it can never go to Play. To sign with a real key, add these repository secrets: `ANDROID_EXAMPLE_KEYSTORE_BASE64` (`base64 -w0 release.jks`), `ANDROID_EXAMPLE_KEYSTORE_PASSWORD`, `ANDROID_EXAMPLE_KEY_ALIAS` and `ANDROID_EXAMPLE_KEY_PASSWORD`. Testers have to uninstall once when the key changes.
 

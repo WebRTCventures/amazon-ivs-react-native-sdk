@@ -24,7 +24,7 @@ import {
 
 function AppContent() {
   const [pastedToken, setPastedToken] = useState(STAGE_PARTICIPANT_TOKEN);
-  const token = pastedToken.trim();
+  const token = pastedToken.replace(/\s/g, '');
   const [screen, setScreen] = useState<'home' | 'token' | 'prejoin' | 'call'>(
     'home'
   );
@@ -90,8 +90,12 @@ function AppContent() {
         if (screen === 'prejoin') {
           // Don't leave mid-join.
           if (!joining) {
-            setScreen('home');
+            setScreen('token');
           }
+          return true;
+        }
+        if (screen === 'token') {
+          setScreen('home');
           return true;
         }
         return false;
@@ -177,7 +181,10 @@ function AppContent() {
         onClearLog={clear}
         pastedToken={pastedToken}
         onPasteToken={setPastedToken}
-        hasBuiltInToken={STAGE_PARTICIPANT_TOKEN.trim().length > 0}
+        usingBuiltInToken={
+          STAGE_PARTICIPANT_TOKEN.length > 0 &&
+          pastedToken === STAGE_PARTICIPANT_TOKEN
+        }
       />
     </>
   );

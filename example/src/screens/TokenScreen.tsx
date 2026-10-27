@@ -3,13 +3,13 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
 import { DebugLink } from '../components/DebugSheet';
 import { colors, radius, space, type } from '../theme';
@@ -30,7 +30,7 @@ export function TokenScreen({
   onOpenDebug: () => void;
 }) {
   const [error, setError] = useState<string | null>(null);
-  const ready = token.trim().length > 0;
+  const ready = token.replace(/\s/g, '').length > 0;
 
   function submit() {
     if (!ready) {
@@ -43,10 +43,7 @@ export function TokenScreen({
   return (
     <SafeAreaView style={styles.screen}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.canvas} />
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
+      <KeyboardAvoidingView style={styles.flex} behavior="padding">
         <View style={styles.topBar}>
           <Pressable onPress={onBack} hitSlop={12} accessibilityRole="button">
             <Text style={styles.back}>Back</Text>
@@ -57,10 +54,7 @@ export function TokenScreen({
 
         <View style={styles.body}>
           <Text style={styles.title}>Participant token</Text>
-          <Text style={styles.hint}>
-            Each person needs their own token for this stage. For local testing
-            this field is pre-filled from stage.config.ts.
-          </Text>
+          <Text style={styles.hint}>Paste the token you were sent.</Text>
 
           <TextInput
             style={styles.input}
@@ -75,7 +69,6 @@ export function TokenScreen({
             autoCorrect={false}
             autoComplete="off"
             multiline
-            textAlignVertical="top"
           />
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -137,6 +130,8 @@ const styles = StyleSheet.create({
   },
   input: {
     minHeight: 140,
+    maxHeight: 220,
+    textAlignVertical: 'top',
     borderRadius: radius.lg,
     paddingHorizontal: space.lg,
     paddingVertical: space.md,
