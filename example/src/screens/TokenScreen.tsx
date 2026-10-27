@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -29,16 +28,7 @@ export function TokenScreen({
   onContinue: () => void;
   onOpenDebug: () => void;
 }) {
-  const [error, setError] = useState<string | null>(null);
   const ready = token.replace(/\s/g, '').length > 0;
-
-  function submit() {
-    if (!ready) {
-      setError('Paste a participant token to continue.');
-      return;
-    }
-    onContinue();
-  }
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -54,15 +44,12 @@ export function TokenScreen({
 
         <View style={styles.body}>
           <Text style={styles.title}>Participant token</Text>
-          <Text style={styles.hint}>Paste the token you were sent.</Text>
+          <Text style={styles.hint}>Paste your participant token.</Text>
 
           <TextInput
             style={styles.input}
             value={token}
-            onChangeText={(value) => {
-              onChangeToken(value);
-              setError(null);
-            }}
+            onChangeText={onChangeToken}
             placeholder="Paste participant token"
             placeholderTextColor={colors.textSecondary}
             autoCapitalize="none"
@@ -71,12 +58,10 @@ export function TokenScreen({
             multiline
           />
 
-          {error ? <Text style={styles.error}>{error}</Text> : null}
-
           <Button
             variant="primary"
             label="Continue"
-            onPress={submit}
+            onPress={onContinue}
             disabled={!ready}
           />
         </View>
@@ -142,9 +127,5 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
-  },
-  error: {
-    ...type.callout,
-    color: colors.errorText,
   },
 });
