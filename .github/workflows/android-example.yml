@@ -24,7 +24,6 @@ jobs:
     name: Build release APK
     runs-on: ubuntu-latest
     outputs:
-      apk-name: ${{ steps.apk.outputs.name }}
       version-name: ${{ steps.apk.outputs.version-name }}
     env:
       VERSION_CODE: ${{ github.run_number }}
@@ -118,7 +117,8 @@ jobs:
       - name: Create GitHub prerelease
         env:
           GH_TOKEN: ${{ github.token }}
-          APK: ${{ needs.build.outputs.apk-name }}
+          # Not a job output: outputs that contain a secret value are dropped.
+          APK: ivs-example-android-${{ needs.build.outputs.version-name }}.apk
           VERSION_NAME: ${{ needs.build.outputs.version-name }}
         # Never v*: those tags publish the library to npm.
         run: >
