@@ -78,7 +78,7 @@ jobs:
         working-directory: example/android
         env:
           ORG_GRADLE_PROJECT_ivsExampleReleaseStorePassword: ${{ secrets.ANDROID_EXAMPLE_KEYSTORE_PASSWORD }}
-          ORG_GRADLE_PROJECT_ivsExampleReleaseKeyAlias: ${{ secrets.ANDROID_EXAMPLE_KEY_ALIAS }}
+          ORG_GRADLE_PROJECT_ivsExampleReleaseKeyAlias: ${{ vars.ANDROID_EXAMPLE_KEY_ALIAS }}
           ORG_GRADLE_PROJECT_ivsExampleReleaseKeyPassword: ${{ secrets.ANDROID_EXAMPLE_KEY_PASSWORD }}
         run: >
           ./gradlew :app:assembleRelease --no-daemon
