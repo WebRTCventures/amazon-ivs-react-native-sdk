@@ -179,12 +179,6 @@ function AppContent() {
         onClose={() => setDebugOpen(false)}
         entries={entries}
         onClearLog={clear}
-        pastedToken={pastedToken}
-        onPasteToken={setPastedToken}
-        usingBuiltInToken={
-          STAGE_PARTICIPANT_TOKEN.length > 0 &&
-          pastedToken === STAGE_PARTICIPANT_TOKEN
-        }
       />
     </>
   );
