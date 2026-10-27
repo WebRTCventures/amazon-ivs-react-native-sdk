@@ -60,10 +60,7 @@ export function HomeScreen({
             label="New meeting"
             onPress={onNewMeeting}
           />
-          <Button
-            label="Join with a code"
-            onPress={() => setJoinOpen(true)}
-          />
+          <Button label="Join with a code" onPress={() => setJoinOpen(true)} />
         </View>
 
         <View style={styles.footer}>

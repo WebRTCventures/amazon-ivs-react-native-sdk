@@ -25,9 +25,9 @@ import {
 function AppContent() {
   const [pastedToken, setPastedToken] = useState(STAGE_PARTICIPANT_TOKEN);
   const token = pastedToken.trim();
-  const [screen, setScreen] = useState<
-    'home' | 'token' | 'prejoin' | 'call'
-  >('home');
+  const [screen, setScreen] = useState<'home' | 'token' | 'prejoin' | 'call'>(
+    'home'
+  );
   const [displayName, setDisplayName] = useState(DEFAULT_DISPLAY_NAME);
   const [joining, setJoining] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
