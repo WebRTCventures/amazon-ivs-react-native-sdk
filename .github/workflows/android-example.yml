@@ -24,7 +24,6 @@ jobs:
     name: Build release APK
     runs-on: ubuntu-latest
     outputs:
-      apk-name: ${{ steps.apk.outputs.name }}
       version-name: ${{ steps.apk.outputs.version-name }}
     env:
       VERSION_CODE: ${{ github.run_number }}
@@ -79,7 +78,7 @@ jobs:
         working-directory: example/android
         env:
           ORG_GRADLE_PROJECT_ivsExampleReleaseStorePassword: ${{ secrets.ANDROID_EXAMPLE_KEYSTORE_PASSWORD }}
-          ORG_GRADLE_PROJECT_ivsExampleReleaseKeyAlias: ${{ secrets.ANDROID_EXAMPLE_KEY_ALIAS }}
+          ORG_GRADLE_PROJECT_ivsExampleReleaseKeyAlias: ${{ vars.ANDROID_EXAMPLE_KEY_ALIAS }}
           ORG_GRADLE_PROJECT_ivsExampleReleaseKeyPassword: ${{ secrets.ANDROID_EXAMPLE_KEY_PASSWORD }}
         run: >
           ./gradlew :app:assembleRelease --no-daemon
@@ -118,7 +117,8 @@ jobs:
       - name: Create GitHub prerelease
         env:
           GH_TOKEN: ${{ github.token }}
-          APK: ${{ needs.build.outputs.apk-name }}
+          # Not a job output: outputs that contain a secret value are dropped.
+          APK: ivs-example-android-${{ needs.build.outputs.version-name }}.apk
           VERSION_NAME: ${{ needs.build.outputs.version-name }}
         # Never v*: those tags publish the library to npm.
         run: >
@@ -130,4 +130,4 @@ jobs:
           --title "Android example $VERSION_NAME"
           --notes "Test build of the example app from $GITHUB_SHA.
           Install the APK on an Android phone (allow installs from your browser or files app).
-          It ships without a participant token: open Debug, then Token, and paste the token you were sent."
+          It ships without a participant token: tap New meeting or Join with a code, and paste the token you were sent on the token screen."
