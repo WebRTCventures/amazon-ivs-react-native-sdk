@@ -130,4 +130,4 @@ jobs:
           --title "Android example $VERSION_NAME"
           --notes "Test build of the example app from $GITHUB_SHA.
           Install the APK on an Android phone (allow installs from your browser or files app).
-          It ships without a participant token: open Debug, then Token, and paste the token you were sent."
+          It ships without a participant token: tap New meeting or Join with a code, and paste the token you were sent on the token screen."
