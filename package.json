@@ -55,7 +55,7 @@
     "url": "git+https://github.com/WebRTCventures/amazon-ivs-react-native-sdk.git"
   },
   "author": "WebRTC Ventures",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/WebRTCventures/amazon-ivs-react-native-sdk/issues"
   },
